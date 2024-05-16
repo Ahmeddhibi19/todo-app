@@ -2,6 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:todo_app_v1/Service/Auth_Service.dart';
 
 class AddToDoPage extends StatefulWidget {
   AddToDoPage({Key? key}) : super(key: key);
@@ -15,6 +18,13 @@ TextEditingController titleController=TextEditingController();
 TextEditingController descriptionController=TextEditingController();
 String type="";
 String category="";
+DateTime selectedDate = DateTime.now();
+TimeOfDay selectedTime = TimeOfDay.now();
+String time="";
+String date="";
+  final storage = new FlutterSecureStorage();
+    AuthClass authClass = AuthClass();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -60,6 +70,10 @@ String category="";
 
                       ),
                     ),
+                     SizedBox(height: 25,),
+                     label("date && time"),
+                      SizedBox(height: 12,),
+                      dateTime(),
                       SizedBox(height: 25,),
                       label("Task Title"),
                       SizedBox(height: 12,),
@@ -113,13 +127,21 @@ String category="";
 
   Widget button(){
     return InkWell(
-      onTap: (){
+      onTap: () async{
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+String userEmail = await authClass.getUserEmailFromCredential();
+String? userCredential = await storage.read(key:'userCredential');
+
         FirebaseFirestore.instance.collection("Todo").add(
           {
             "title":titleController.text,
             "task":type,
             "category":category,
             "description":descriptionController.text,
+            "date":date,
+            "time":time,
+            "status":"unfinished",
+            "userEmail":userEmail,
           }
         );
         Navigator.pop(context);
@@ -285,5 +307,73 @@ Widget title(){
       ),
     );
   }
+  Widget dateTime(){
+      return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Date Selection
+        InkWell(
+          onTap: () {
+            _selectDate(context);
+          },
+          child: Row(
+            children: [
+              Icon(Icons.calendar_today),
+              SizedBox(width: 10),
+              Text(
+                'Date: ${selectedDate.year}-${selectedDate.month}-${selectedDate.day}',
+                style: TextStyle(color: Colors.white),
+              ),
+            ],
+          ),
+        ),
+        SizedBox(height: 20),
+        // Time Selection
+        InkWell(
+          onTap: () {
+            _selectTime(context);
+          },
+          child: Row(
+            children: [
+              Icon(Icons.access_time),
+              SizedBox(width: 10),
+              Text(
+                'Time: ${selectedTime.hour}:${selectedTime.minute}',
+                style: TextStyle(color: Colors.white),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
 
+  }
+
+   Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: selectedDate,
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2101),
+    );
+    if (picked != null && picked != selectedDate)
+      setState(() {
+        selectedDate = picked;
+       date = '${selectedDate.year}-${selectedDate.month.toString().padLeft(2, '0')}-${selectedDate.day.toString().padLeft(2, '0')}';
+      });
+  }
+
+   Future<void> _selectTime(BuildContext context) async {
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: selectedTime,
+    );
+    if (picked != null && picked != selectedTime)
+      setState(() {
+        selectedTime = picked;
+        time='${selectedTime.hour}:${selectedTime.minute}';
+      });
+  }
+
+   
 }

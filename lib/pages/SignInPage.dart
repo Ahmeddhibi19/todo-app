@@ -5,6 +5,7 @@ import 'package:todo_app_v1/Service/Auth_Service.dart';
 import 'package:todo_app_v1/pages/SignUpPage.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:todo_app_v1/pages/HomePage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SignInPage extends StatefulWidget {
   SignInPage({Key? key}) : super(key: key);
@@ -199,6 +200,8 @@ class _SignInPgeState extends State<SignInPage> {
           setState(() {
             circular = false;
           });
+           SharedPreferences prefs = await SharedPreferences.getInstance();
+           await prefs.setString('userEmail', userCredential.user?.email?? '');
           Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(builder: (builder) => HomePage()),

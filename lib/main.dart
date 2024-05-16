@@ -7,6 +7,7 @@ import 'package:todo_app_v1/pages/AddToDo.dart';
 import 'package:todo_app_v1/pages/HomePage.dart';
 import 'package:todo_app_v1/pages/SignInPage.dart';
 import 'package:todo_app_v1/pages/SignUpPage.dart';
+import 'package:todo_app_v1/pages/SignInPage.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -48,7 +49,7 @@ if(token!=null){
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: HomePage(),
+      home: SignInPage(),
     );
   }
 }

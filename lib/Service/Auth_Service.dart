@@ -115,6 +115,23 @@ class AuthClass {
         showSnackBar(context, e.toString());
     };
   }
+  Future<String> getUserEmailFromCredential() async {
+  String userCredentialString = await storage.read(key: 'userCredential') as String;
+  if (userCredentialString != null) {
+    // Split the userCredentialString to extract email
+    List<String> credentialParts = userCredentialString.split(',');
+    String? emailPart = credentialParts.firstWhere(
+        (part) => part.trim().startsWith('email:'),
+        orElse: () => '');
+    if (emailPart != null) {
+      // Extract email value
+      String? email = emailPart.split(':').last.trim();
+      return email;
+    }
+  }
+  return '';
+}
+
   
 
 }

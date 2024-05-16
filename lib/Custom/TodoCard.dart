@@ -1,16 +1,23 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 class TodaCard extends StatelessWidget {
-  const TodaCard({super.key , required this.title, required this.iconData , required this.iconColor, required this.time , required this.check,required this.iconBgColore});
+  const TodaCard({super.key , required this.title, required this.iconData , required this.iconColor, required this.time , required this.check,required this.iconBgColore,required this.onChange , required this.index , required this.date, required this.task, required this.status});
 
   final String title;
   final IconData iconData;
   final Color iconColor;
-  final String time ;
+  final String time;
+  final String date;
   final bool check;
   final Color iconBgColore;
+  final Function onChange;
+  final int index;
+  final String task;
+  final String status;
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +33,9 @@ class TodaCard extends StatelessWidget {
                 activeColor: Color(0xff6cf8a9) ,
                 checkColor:Color(0xff0e3e26) ,
                 value: check,
-                 onChanged: (bool? value){},
+                 onChanged: (bool? value){
+                  onChange(index);
+                 },
                 ),
             ),
               data: ThemeData(
@@ -38,8 +47,8 @@ class TodaCard extends StatelessWidget {
             child: Container(
               height: 75,
               child: Card(
-                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                color:Color(0xff2a2e3d) ,
+                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12),side: status=="unfinished"? BorderSide(color: const Color.fromARGB(255, 247, 1, 1)): BorderSide(color: Color.fromARGB(255, 3, 202, 53))),
+                color: task=="Important" ?Colors.indigoAccent:Color(0xff2a2e3d) ,
                 child: Row(
                   children: [
                     SizedBox(width:15 ,),
@@ -57,21 +66,28 @@ class TodaCard extends StatelessWidget {
                       child: Text(
                        title,
                          style: TextStyle(
-                          fontSize: 18,
+                          fontSize: task=="Important" ? 22 : 18,
                           letterSpacing: 1,
-                          fontWeight:FontWeight.w500,
+                          fontWeight:  task=="Important" ? FontWeight.w700 :FontWeight.w500,
                           color: Colors.white
                         ),
                         ),
                     ),
-                      Text(
-                       time,
-                         style: TextStyle(
-                        fontSize: 15,
-                        color: Colors.white
-                      ),
-                      ),
-                       SizedBox(width:20 ,),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                       children: [
+                         SizedBox(height:10 ,),
+                        Text(
+                          'Time: ${time}',
+                          style: TextStyle(fontSize: 15, color: Colors.white),
+                        ),
+                        Text(
+                          'Date: ${date}',
+                          style: TextStyle(fontSize: 15, color: Colors.white),
+                        ),
+                      ],
+                    ),
+                     
                   ],
                 ),
               ),
@@ -80,5 +96,13 @@ class TodaCard extends StatelessWidget {
         ],
       ),
     );
+  }
+
+   String _formatTime(TimeOfDay time) {
+    return '${time.hour}:${time.minute}';
+  }
+
+  String _formatDate(DateTime date) {
+    return '${date.day}/${date.month}/${date.year}';
   }
 }
